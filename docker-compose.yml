@@ -1,0 +1,63 @@
+# Copyright © 2022 Durudex
+#
+# This file is part of Durudex: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# Durudex is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with Durudex. If not, see <https://www.gnu.org/licenses/>.
+
+version: '3.8'
+
+services:
+  app:
+    image: durudex-auth-service
+    container_name: durudex-auth-service
+    build:
+      context: .
+      dockerfile: Dockerfile
+    hostname: auth.service.durudex.local
+    ports:
+      - 8000:8000
+    volumes:
+      - ./.bin/:/root/
+      - ./certs/:/root/certs/
+      - ./configs/:/root/configs/
+    env_file:
+      - .env
+    networks:
+      - durudex-backend
+      - durudex-database
+
+  postgres:
+    image: postgres:latest
+    container_name: auth-postgres
+    environment:
+      POSTGRES_DB: durudex
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: qwerty
+    hostname: auth.postgres.durudex.local
+    ports:
+      - 5432:5432
+    volumes:
+      - durudex:/var/lib/postgresql/data
+    networks:
+      - durudex-database
+
+volumes:
+  durudex:
+    name: durudex
+
+networks:
+  durudex-backend:
+    driver: bridge
+    name: durudex-backend
+  durudex-database:
+    driver: bridge
+    name: durudex-database
