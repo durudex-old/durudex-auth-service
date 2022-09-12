@@ -34,17 +34,3 @@ jobs:
         uses: golangci/golangci-lint-action@v2
         with:
           version: v1.46.0
-
-  pb-lint:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v2
-
-      - name: Install Protobuf Lint
-        uses: bufbuild/buf-setup-action@v1
-
-      - name: Run Protobuf Lint
-        uses: bufbuild/buf-lint-action@v1
-        with:
-          input: 'proto'
