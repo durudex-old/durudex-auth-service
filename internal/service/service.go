@@ -20,9 +20,9 @@ package service
 import "github.com/durudex/durudex-auth-service/internal/repository"
 
 // Service structure.
-type Service struct{}
+type Service struct{ User }
 
 // Creating a new service.
 func NewService(repos *repository.Repository) *Service {
-	return &Service{}
+	return &Service{User: NewUserService()}
 }

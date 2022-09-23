@@ -14,3 +14,11 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with Durudex. If not, see <https://www.gnu.org/licenses/>.
  */
+
+CREATE TABLE IF NOT EXISTS "user_session" (
+  "id"         CHAR(27)    NOT NULL PRIMARY KEY,
+  "user_id"    CHAR(27)    NOT NULL,
+  "payload"    VARCHAR(64) NOT NULL,
+  "ip"         INET        NOT NULL,
+  "expires_in" TIMESTAMP   NOT NULL
+);

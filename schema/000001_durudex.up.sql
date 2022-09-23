@@ -14,3 +14,5 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with Durudex. If not, see <https://www.gnu.org/licenses/>.
  */
+
+DROP TABLE "user_session";

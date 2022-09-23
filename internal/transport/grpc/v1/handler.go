@@ -19,6 +19,7 @@ package v1
 
 import (
 	"github.com/durudex/durudex-auth-service/internal/service"
+	v1 "github.com/durudex/durudex-auth-service/pkg/pb/durudex/v1"
 
 	"google.golang.org/grpc"
 )
@@ -32,4 +33,6 @@ func NewHandler(service *service.Service) *Handler {
 }
 
 // Registering gRPC handlers.
-func (h *Handler) RegisterHandlers(srv *grpc.Server) {}
+func (h *Handler) RegisterHandlers(srv *grpc.Server) {
+	v1.RegisterUserAuthServiceServer(srv, NewUserHandler(h.service.User))
+}
