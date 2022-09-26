@@ -20,7 +20,10 @@ package service
 import (
 	"context"
 
+	"github.com/durudex/durudex-auth-service/internal/client"
 	"github.com/durudex/durudex-auth-service/internal/domain"
+	"github.com/durudex/durudex-auth-service/internal/repository/postgres"
+	v1 "github.com/durudex/durudex-auth-service/pkg/pb/durudex/v1"
 )
 
 // User auth service interface.
@@ -36,11 +39,16 @@ type User interface {
 }
 
 // User service structure.
-type UserService struct{}
+type UserService struct {
+	auth  postgres.User
+	user  v1.UserServiceClient
+	code  v1.UserCodeServiceClient
+	email v1.EmailUserServiceClient
+}
 
 // Creating a new user service.
-func NewUserService() *UserService {
-	return &UserService{}
+func NewUserService(repos postgres.User, client *client.Client) *UserService {
+	return &UserService{auth: repos, user: client.User.User, code: client.Code.User, email: client.Email.User}
 }
 
 // User SignUp.

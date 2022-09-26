@@ -70,6 +70,35 @@ func TestConfig_NewConfig(t *testing.T) {
 						URL:      "postgres://localhost:1",
 					},
 				},
+				Service: config.ServiceConfig{
+					User: config.Service{
+						Addr: "user.service.durudex.local:8004",
+						TLS: config.TLSConfig{
+							Enable: true,
+							CACert: "./certs/rootCA.pem",
+							Cert:   "./certs/client-cert.pem",
+							Key:    "./certs/client-key.pem",
+						},
+					},
+					Code: config.Service{
+						Addr: "code.service.durudex.local:8003",
+						TLS: config.TLSConfig{
+							Enable: true,
+							CACert: "./certs/rootCA.pem",
+							Cert:   "./certs/client-cert.pem",
+							Key:    "./certs/client-key.pem",
+						},
+					},
+					Email: config.Service{
+						Addr: "email.service.durudex.local:8002",
+						TLS: config.TLSConfig{
+							Enable: true,
+							CACert: "./certs/rootCA.pem",
+							Cert:   "./certs/client-cert.pem",
+							Key:    "./certs/client-key.pem",
+						},
+					},
+				},
 			},
 		},
 	}

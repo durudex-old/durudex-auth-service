@@ -33,6 +33,7 @@ type (
 	Config struct {
 		GRPC     GRPCConfig     `mapstructure:"grpc"`
 		Database DatabaseConfig `mapstructure:"database"`
+		Service  ServiceConfig  `mapstructure:"service"`
 	}
 
 	// gRPC server config variables.
@@ -60,6 +61,19 @@ type (
 		MaxConns int32 `mapstructure:"max-conns"`
 		MinConns int32 `mapstructure:"min-conns"`
 		URL      string
+	}
+
+	// Service base config.
+	Service struct {
+		Addr string    `mapstructure:"addr"`
+		TLS  TLSConfig `mapstructure:"tls"`
+	}
+
+	// Services config variables.
+	ServiceConfig struct {
+		User  Service `mapstructure:"user"`
+		Code  Service `mapstructure:"code"`
+		Email Service `mapstructure:"email"`
 	}
 )
 

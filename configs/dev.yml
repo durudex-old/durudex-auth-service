@@ -26,3 +26,26 @@ database:
   postgres:
     max-conns: 5
     min-conns: 2
+
+service:
+  user:
+    addr: "user.service.durudex.local:8004"
+    tls:
+      enable: false
+      ca-cert: "./certs/rootCA.pem"
+      cert: "./certs/client-cert.pem"
+      key: "./certs/client-key.pem"
+  code:
+    addr: "code.service.durudex.local:8003"
+    tls:
+      enable: false
+      ca-cert: "./certs/rootCA.pem"
+      cert: "./certs/client-cert.pem"
+      key: "./certs/client-key.pem"
+  email:
+    addr: "email.service.durudex.local:8002"
+    tls:
+      enable: false
+      ca-cert: "./certs/rootCA.pem"
+      cert: "./certs/client-cert.pem"
+      key: "./certs/client-key.pem"
