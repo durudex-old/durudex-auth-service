@@ -15,14 +15,28 @@
  * along with Durudex. If not, see <https://www.gnu.org/licenses/>.
  */
 
-CREATE TABLE IF NOT EXISTS user_session (
-  id         CHAR(27)    NOT NULL PRIMARY KEY,
-  user_id    CHAR(27)    NOT NULL,
-  payload    VARCHAR(64) NOT NULL,
-  ip         INET        NOT NULL,
-  expires_in TIMESTAMP   NOT NULL
-);
+package domain
 
-CREATE UNIQUE INDEX IF NOT EXISTS user_session_id_idx ON user_session (id DESC);
+import "fmt"
 
-CREATE INDEX IF NOT EXISTS user_session_user_id_idx ON user_session (user_id DESC);
+// Error status code key.
+type CodeKey int
+
+// Error status codes.
+const (
+	CodeInternal CodeKey = iota
+	CodeNotFound
+	CodeAlreadyExists
+	CodeInvalidArgument
+)
+
+// Error structure.
+type Error struct {
+	Code    CodeKey
+	Message string
+}
+
+// Getting error message.
+func (e *Error) Error() string {
+	return fmt.Sprintf("%d: %s", e.Code, e.Message)
+}

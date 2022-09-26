@@ -15,4 +15,8 @@
  * along with Durudex. If not, see <https://www.gnu.org/licenses/>.
  */
 
-DROP TABLE "user_session";
+DROP TABLE IF EXISTS user_session;
+
+DROP INDEX IF EXISTS user_session_id_idx;
+
+DROP INDEX IF EXISTS user_session_user_id_idx;

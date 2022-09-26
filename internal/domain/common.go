@@ -15,14 +15,18 @@
  * along with Durudex. If not, see <https://www.gnu.org/licenses/>.
  */
 
-CREATE TABLE IF NOT EXISTS user_session (
-  id         CHAR(27)    NOT NULL PRIMARY KEY,
-  user_id    CHAR(27)    NOT NULL,
-  payload    VARCHAR(64) NOT NULL,
-  ip         INET        NOT NULL,
-  expires_in TIMESTAMP   NOT NULL
-);
+package domain
 
-CREATE UNIQUE INDEX IF NOT EXISTS user_session_id_idx ON user_session (id DESC);
+import "github.com/segmentio/ksuid"
 
-CREATE INDEX IF NOT EXISTS user_session_user_id_idx ON user_session (user_id DESC);
+// Query sorting options.
+type SortOptions struct {
+	// Get first n elements.
+	First *int32
+	// Get last n elements.
+	Last *int32
+	// Before cursor.
+	Before ksuid.KSUID
+	// After cursor.
+	After ksuid.KSUID
+}

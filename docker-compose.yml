@@ -24,7 +24,7 @@ services:
       dockerfile: Dockerfile
     hostname: auth.service.durudex.local
     ports:
-      - 8000:8000
+      - 8001:8001
     volumes:
       - ./.bin/:/root/
       - ./certs/:/root/certs/

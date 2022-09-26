@@ -17,6 +17,26 @@
 
 package domain
 
+import (
+	"time"
+
+	"github.com/segmentio/ksuid"
+)
+
+// User auth session.
+type UserSession struct {
+	// User session id.
+	Id ksuid.KSUID
+	// User session owner.
+	UserId ksuid.KSUID
+	// User session payload.
+	Payload string
+	// User ip address.
+	Ip string
+	// User session expires in.
+	ExpiresIn time.Time
+}
+
 // User SignUp auth input.
 type UserSignUpInput struct {
 	// Unique username.
