@@ -72,19 +72,3 @@ type UserTokens struct {
 	// Refresh token.
 	Refresh string
 }
-
-// User SignOut auth input.
-type UserSignOutInput struct {
-	// User session refresh token.
-	Refresh string
-	// Client secret key.
-	Secret string
-}
-
-// User RefreshToken auth input.
-type UserRefreshTokenInput struct {
-	// User session refresh token.
-	Refresh string
-	// Client secret key.
-	Secret string
-}

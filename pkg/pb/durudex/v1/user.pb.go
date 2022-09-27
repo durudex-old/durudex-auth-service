@@ -12,7 +12,7 @@
 package durudexv1
 
 import (
-	timestamp "github.com/durudex/dugopb/type/timestamp"
+	pbtype "github.com/durudex/go-protobuf-type/pbtype"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -99,7 +99,7 @@ type CreateUserResponse struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// User ksuid.
+	// User id.
 	Id []byte `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 }
 
@@ -148,7 +148,7 @@ type GetUserByIdRequest struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// User ksuid.
+	// User id.
 	Id []byte `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 }
 
@@ -200,7 +200,7 @@ type GetUserByIdResponse struct {
 	// Username.
 	Username string `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
 	// User last visited timestamp.
-	LastVisit *timestamp.Timestamp `protobuf:"bytes,2,opt,name=last_visit,json=lastVisit,proto3" json:"last_visit,omitempty"`
+	LastVisit *pbtype.Timestamp `protobuf:"bytes,2,opt,name=last_visit,json=lastVisit,proto3" json:"last_visit,omitempty"`
 	// User verified status.
 	Verified bool `protobuf:"varint,3,opt,name=verified,proto3" json:"verified,omitempty"`
 	// User avatar url.
@@ -246,7 +246,7 @@ func (x *GetUserByIdResponse) GetUsername() string {
 	return ""
 }
 
-func (x *GetUserByIdResponse) GetLastVisit() *timestamp.Timestamp {
+func (x *GetUserByIdResponse) GetLastVisit() *pbtype.Timestamp {
 	if x != nil {
 		return x.LastVisit
 	}
@@ -331,12 +331,12 @@ type GetUserByCredsResponse struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// User ksuid.
+	// User id.
 	Id []byte `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	// User email address.
 	Email string `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
 	// User last visited timestamp.
-	LastVisit *timestamp.Timestamp `protobuf:"bytes,3,opt,name=last_visit,json=lastVisit,proto3" json:"last_visit,omitempty"`
+	LastVisit *pbtype.Timestamp `protobuf:"bytes,3,opt,name=last_visit,json=lastVisit,proto3" json:"last_visit,omitempty"`
 	// User verified status.
 	Verified bool `protobuf:"varint,4,opt,name=verified,proto3" json:"verified,omitempty"`
 	// User avatar url.
@@ -389,7 +389,7 @@ func (x *GetUserByCredsResponse) GetEmail() string {
 	return ""
 }
 
-func (x *GetUserByCredsResponse) GetLastVisit() *timestamp.Timestamp {
+func (x *GetUserByCredsResponse) GetLastVisit() *pbtype.Timestamp {
 	if x != nil {
 		return x.LastVisit
 	}
@@ -522,7 +522,7 @@ type UpdateUserAvatarRequest struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// User ksuid.
+	// User id.
 	Id []byte `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	// User avatar url.
 	AvatarUrl string `protobuf:"bytes,2,opt,name=avatar_url,json=avatarUrl,proto3" json:"avatar_url,omitempty"`
@@ -741,7 +741,7 @@ var file_durudex_v1_user_proto_goTypes = []interface{}{
 	(*ForgotUserPasswordResponse)(nil), // 7: durudex.v1.ForgotUserPasswordResponse
 	(*UpdateUserAvatarRequest)(nil),    // 8: durudex.v1.UpdateUserAvatarRequest
 	(*UpdateUserAvatarResponse)(nil),   // 9: durudex.v1.UpdateUserAvatarResponse
-	(*timestamp.Timestamp)(nil),        // 10: durudex.type.Timestamp
+	(*pbtype.Timestamp)(nil),           // 10: durudex.type.Timestamp
 }
 var file_durudex_v1_user_proto_depIdxs = []int32{
 	10, // 0: durudex.v1.GetUserByIdResponse.last_visit:type_name -> durudex.type.Timestamp

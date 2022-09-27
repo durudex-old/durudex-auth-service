@@ -35,10 +35,12 @@ type User interface {
 	Create(ctx context.Context, session domain.UserSession) error
 	// Getting a user session.
 	Get(ctx context.Context, id ksuid.KSUID) (domain.UserSession, error)
-	// Getting a user session list.
+	// Getting a user sessions list.
 	GetList(ctx context.Context, userId ksuid.KSUID, sort domain.SortOptions) ([]domain.UserSession, error)
 	// Deleting a user session.
 	Delete(ctx context.Context, id ksuid.KSUID, payload string) error
+	// Getting total user session count.
+	GetTotalCount(ctx context.Context, userId ksuid.KSUID) (int32, error)
 }
 
 // User session repository structure.
@@ -76,7 +78,7 @@ func (r *UserRepository) Get(ctx context.Context, id ksuid.KSUID) (domain.UserSe
 	return session, nil
 }
 
-// Getting a user session list.
+// Getting a user sessions list.
 func (r *UserRepository) GetList(ctx context.Context, userId ksuid.KSUID, sort domain.SortOptions) ([]domain.UserSession, error) {
 	var n int32
 
@@ -176,4 +178,20 @@ func (r *UserRepository) Delete(ctx context.Context, id ksuid.KSUID, payload str
 	}
 
 	return tx.Commit(ctx)
+}
+
+// Getting total user session count.
+func (r *UserRepository) GetTotalCount(ctx context.Context, userId ksuid.KSUID) (int32, error) {
+	var count int32
+
+	// Get total user session count.
+	query := "SELECT count(*) FROM user_session WHERE author_id=$1"
+	row := r.psql.QueryRow(ctx, query, userId)
+
+	// Scanning query row.
+	if err := row.Scan(&count); err != nil {
+		return 0, err
+	}
+
+	return count, nil
 }

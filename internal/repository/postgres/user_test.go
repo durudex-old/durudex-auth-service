@@ -297,3 +297,62 @@ func TestUserRepository_Delete(t *testing.T) {
 		})
 	}
 }
+
+// Testing getting total user session count.
+func TestUserRepository_GetTotalCount(t *testing.T) {
+	// Creating a new mock pool connection.
+	mock, err := pgxmock.NewPool()
+	if err != nil {
+		t.Fatalf("error creating a new mock pool connection: %s", err.Error())
+	}
+	defer mock.Close()
+
+	// Testing args.
+	type args struct{ authorId ksuid.KSUID }
+
+	// Test behavior.
+	type mockBehavior func(args args, want int32)
+
+	// Creating a new repository.
+	repos := postgres.NewUserRepository(mock)
+
+	// Tests structures.
+	tests := []struct {
+		name         string
+		args         args
+		want         int32
+		wantErr      bool
+		mockBehavior mockBehavior
+	}{
+		{
+			name: "OK",
+			args: args{authorId: ksuid.New()},
+			want: 10,
+			mockBehavior: func(args args, want int32) {
+				rows := mock.NewRows([]string{"count(*)"}).AddRow(want)
+
+				mock.ExpectQuery("SELECT (.+) FROM user_session").
+					WithArgs(args.authorId).
+					WillReturnRows(rows)
+			},
+		},
+	}
+
+	// Conducting tests in various structures.
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.mockBehavior(tt.args, tt.want)
+
+			// Getting total user session count.
+			got, err := repos.GetTotalCount(context.Background(), tt.args.authorId)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("error getting total user session count: %s", err.Error())
+			}
+
+			// Check for similarity of post.
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Error("error count are not similar")
+			}
+		})
+	}
+}

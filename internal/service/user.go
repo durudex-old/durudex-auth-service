@@ -42,9 +42,17 @@ type User interface {
 	// Creating a new user session.
 	CreateSession(ctx context.Context, userId ksuid.KSUID, ip, secret string) (domain.UserTokens, error)
 	// User SignOut.
-	SignOut(ctx context.Context, input domain.UserSignOutInput) error
+	SignOut(ctx context.Context, token, secret string) error
 	// Refresh user token.
-	RefreshToken(ctx context.Context, input domain.UserRefreshTokenInput) (string, error)
+	RefreshToken(ctx context.Context, token, secret string) (string, error)
+	// Getting a user session.
+	GetSession(ctx context.Context, id, userId ksuid.KSUID) (domain.UserSession, error)
+	// Getting a user sessions list.
+	GetSessions(ctx context.Context, userId ksuid.KSUID, sort domain.SortOptions) ([]domain.UserSession, error)
+	// Deleting a user session.
+	DeleteSession(ctx context.Context, token, secret string) error
+	// Getting total user session count.
+	GetTotalCount(ctx context.Context, userId ksuid.KSUID) (int32, error)
 }
 
 // User service structure.
@@ -160,9 +168,9 @@ func (s *UserService) CreateSession(ctx context.Context, userId ksuid.KSUID, ip,
 }
 
 // User SignOut.
-func (s *UserService) SignOut(ctx context.Context, input domain.UserSignOutInput) error {
+func (s *UserService) SignOut(ctx context.Context, token, secret string) error {
 	// Parsing refresh token string.
-	r, sId, err := refresh.Parse(input.Refresh)
+	r, sId, err := refresh.Parse(token)
 	if err != nil {
 		return err
 	}
@@ -174,16 +182,16 @@ func (s *UserService) SignOut(ctx context.Context, input domain.UserSignOutInput
 	}
 
 	// Hashing refresh token by secret key.
-	payload := r.Hash([]byte(input.Secret))
+	payload := r.Hash([]byte(secret))
 
 	// Deleting a user session.
 	return s.auth.Delete(ctx, id, fmt.Sprintf("%x", payload))
 }
 
 // Refresh user token.
-func (s *UserService) RefreshToken(ctx context.Context, input domain.UserRefreshTokenInput) (string, error) {
+func (s *UserService) RefreshToken(ctx context.Context, token, secret string) (string, error) {
 	// Parsing refresh token string.
-	r, sId, err := refresh.Parse(input.Refresh)
+	r, sId, err := refresh.Parse(token)
 	if err != nil {
 		return "", err
 	}
@@ -201,7 +209,7 @@ func (s *UserService) RefreshToken(ctx context.Context, input domain.UserRefresh
 	}
 
 	// Hashing refresh token by secret key.
-	payload := r.Hash([]byte(input.Secret))
+	payload := r.Hash([]byte(secret))
 
 	// Checking user session payload for similar input payload.
 	if session.Payload != fmt.Sprintf("%x", payload) {
@@ -215,4 +223,62 @@ func (s *UserService) RefreshToken(ctx context.Context, input domain.UserRefresh
 	}
 
 	return access, nil
+}
+
+// Getting a user session.
+func (s *UserService) GetSession(ctx context.Context, id, userId ksuid.KSUID) (domain.UserSession, error) {
+	// Getting a user session.
+	session, err := s.auth.Get(ctx, id)
+	if err != nil {
+		return domain.UserSession{}, err
+	}
+
+	// Checking user session owner for similar input user id.
+	if session.UserId != userId {
+		return domain.UserSession{}, &domain.Error{Code: domain.CodeInvalidArgument, Message: "User id is not similar"}
+	}
+
+	return session, nil
+}
+
+// Getting a user sessions list.
+func (s *UserService) GetSessions(ctx context.Context, userId ksuid.KSUID, sort domain.SortOptions) ([]domain.UserSession, error) {
+	// Checking is first and last are set.
+	if sort.First == nil && sort.Last == nil {
+		return nil, &domain.Error{Message: "Must be `first` or `last`", Code: domain.CodeInvalidArgument}
+	}
+
+	// Getting a user sessions list.
+	sessions, err := s.auth.GetList(ctx, userId, sort)
+	if err != nil {
+		return nil, err
+	}
+
+	return sessions, nil
+}
+
+// Deleting a user session.
+func (s *UserService) DeleteSession(ctx context.Context, token, secret string) error {
+	// Parsing refresh token string.
+	r, sId, err := refresh.Parse(token)
+	if err != nil {
+		return err
+	}
+
+	// Parsing session id string.
+	id, err := ksuid.Parse(sId)
+	if err != nil {
+		return err
+	}
+
+	// Hashing refresh token by secret key.
+	payload := r.Hash([]byte(secret))
+
+	// Deleting a user session.
+	return s.auth.Delete(ctx, id, fmt.Sprintf("%x", payload))
+}
+
+// Getting total user session count.
+func (s *UserService) GetTotalCount(ctx context.Context, userId ksuid.KSUID) (int32, error) {
+	return s.auth.GetTotalCount(ctx, userId)
 }

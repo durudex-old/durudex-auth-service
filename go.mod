@@ -3,7 +3,7 @@ module github.com/durudex/durudex-auth-service
 go 1.18
 
 require (
-	github.com/durudex/dugopb v0.0.1
+	github.com/durudex/go-protobuf-type v0.0.2
 	github.com/durudex/go-refresh v0.0.2
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/jackc/pgconn v1.13.0

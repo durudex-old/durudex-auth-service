@@ -24,8 +24,8 @@ github.com/creack/pty v1.1.7/go.mod h1:lj5s0c3V2DBrqTV7llrYr5NG6My20zk30Fl46Y7Do
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/durudex/dugopb v0.0.1 h1:GFSFWoDlaIwEjJzFL2h1/W7I7afYu3x+Pr14KJWHREI=
-github.com/durudex/dugopb v0.0.1/go.mod h1:UupXbRNlvMieUZ2LdikpUW4I/8/w0w7cSDGfWXU2w8I=
+github.com/durudex/go-protobuf-type v0.0.2 h1:iO+cH7tHhvSRxb2Slyx8l/lNLLRpUsbJnMRFzxg6NEE=
+github.com/durudex/go-protobuf-type v0.0.2/go.mod h1:tfn+X0BJehtkLXY12B/b8AwFMR6HtDuqMqntgYqb1GM=
 github.com/durudex/go-refresh v0.0.2 h1:4v/ZVlV4aGQ5PIugMF3vJgA57JVGQa+dkcYr7bGF8m0=
 github.com/durudex/go-refresh v0.0.2/go.mod h1:7LJg4zWgqCcbnd1wlMTfr3vIBtRioo2OBaNnfS5VPsI=
 github.com/envoyproxy/go-control-plane v0.9.0/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymFceY/DCBVvsKhRF0iEA4=
