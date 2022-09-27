@@ -20,6 +20,7 @@ package config
 import (
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
@@ -33,6 +34,7 @@ type (
 	Config struct {
 		GRPC     GRPCConfig     `mapstructure:"grpc"`
 		Database DatabaseConfig `mapstructure:"database"`
+		Auth     AuthConfig     `mapstructure:"auth"`
 		Service  ServiceConfig  `mapstructure:"service"`
 	}
 
@@ -61,6 +63,23 @@ type (
 		MaxConns int32 `mapstructure:"max-conns"`
 		MinConns int32 `mapstructure:"min-conns"`
 		URL      string
+	}
+
+	// Auth config variables.
+	AuthConfig struct {
+		Session SessionConfig `mapstructure:"session"`
+		JWT     JWTConfig     `mapstructure:"jwt"`
+	}
+
+	// Session config variables.
+	SessionConfig struct {
+		TTL time.Duration `mapstructure:"ttl"`
+	}
+
+	// JWT config variables.
+	JWTConfig struct {
+		TTL        time.Duration `mapstructure:"ttl"`
+		SigningKey string
 	}
 
 	// Service base config.
@@ -127,4 +146,7 @@ func setFromEnv(cfg *Config) {
 
 	// Postgres configurations.
 	cfg.Database.Postgres.URL = os.Getenv("POSTGRES_URL")
+
+	// Auth configurations.
+	cfg.Auth.JWT.SigningKey = os.Getenv("JWT_SIGNING_KEY")
 }

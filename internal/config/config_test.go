@@ -21,6 +21,7 @@ import (
 	"os"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/durudex/durudex-auth-service/internal/config"
 )
@@ -69,6 +70,10 @@ func TestConfig_NewConfig(t *testing.T) {
 						MinConns: 5,
 						URL:      "postgres://localhost:1",
 					},
+				},
+				Auth: config.AuthConfig{
+					Session: config.SessionConfig{TTL: time.Hour * 720},
+					JWT:     config.JWTConfig{TTL: time.Minute * 15},
 				},
 				Service: config.ServiceConfig{
 					User: config.Service{

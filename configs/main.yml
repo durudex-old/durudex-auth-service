@@ -27,6 +27,12 @@ database:
     max-conns: 20
     min-conns: 5
 
+auth:
+  session:
+    ttl: "720h"
+  jwt:
+    ttl: "15m"
+
 service:
   user:
     addr: "user.service.durudex.local:8004"

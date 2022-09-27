@@ -15,18 +15,21 @@
  * along with Durudex. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package service
+package auth
 
 import (
-	"github.com/durudex/durudex-auth-service/internal/client"
-	"github.com/durudex/durudex-auth-service/internal/config"
-	"github.com/durudex/durudex-auth-service/internal/repository"
+	"time"
+
+	"github.com/golang-jwt/jwt"
 )
 
-// Service structure.
-type Service struct{ User User }
+// Generating a new jwt access token.
+func GenerateAccessToken(subject, signingKey string, ttl time.Duration) (string, error) {
+	// Generating a new jwt token with claims.
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
+		ExpiresAt: time.Now().Add(ttl).Unix(),
+		Subject:   subject,
+	})
 
-// Creating a new service.
-func NewService(repos *repository.Repository, client *client.Client, cfg *config.Config) *Service {
-	return &Service{User: NewUserService(repos.Postgres.User, client, &cfg.Auth)}
+	return token.SignedString([]byte(signingKey))
 }

@@ -55,7 +55,7 @@ func main() {
 	// Creating a new client.
 	client := client.NewClient(cfg.Service)
 	// Creating a new service.
-	service := service.NewService(repos, client)
+	service := service.NewService(repos, client, cfg)
 	// Creating a new gRPC handler.
 	handler := grpc.NewHandler(service)
 
@@ -72,6 +72,9 @@ func main() {
 
 	// Closing postgres pool connections.
 	repos.Postgres.Close()
+
+	// Closing a client connections.
+	client.Close()
 
 	// Stopping server.
 	srv.Stop()

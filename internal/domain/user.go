@@ -79,8 +79,6 @@ type UserSignOutInput struct {
 	Refresh string
 	// Client secret key.
 	Secret string
-	// User ip address.
-	Ip string
 }
 
 // User RefreshToken auth input.
@@ -89,6 +87,4 @@ type UserRefreshTokenInput struct {
 	Refresh string
 	// Client secret key.
 	Secret string
-	// User ip address.
-	Ip string
 }

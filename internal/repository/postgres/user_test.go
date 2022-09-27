@@ -96,7 +96,7 @@ func TestUserRepository_Get(t *testing.T) {
 	defer mock.Close()
 
 	// Testing args.
-	type args struct{ id, userId ksuid.KSUID }
+	type args struct{ id ksuid.KSUID }
 
 	// Test behavior.
 	type mockBehavior func(args args, session domain.UserSession)
@@ -114,15 +114,16 @@ func TestUserRepository_Get(t *testing.T) {
 	}{
 		{
 			name: "OK",
-			args: args{id: ksuid.New(), userId: ksuid.New()},
+			args: args{id: ksuid.New()},
 			want: domain.UserSession{
+				UserId:    ksuid.New(),
 				Payload:   "0000000000000000000000000000000000000000000000000000000000000000",
 				Ip:        "0.0.0.0",
 				ExpiresIn: time.Now(),
 			},
 			mockBehavior: func(args args, session domain.UserSession) {
 				rows := mock.NewRows([]string{"user_id", "payload", "ip", "expires_in"}).AddRow(
-					args.userId, session.Payload, session.Ip, session.ExpiresIn)
+					session.UserId, session.Payload, session.Ip, session.ExpiresIn)
 
 				mock.ExpectQuery("SELECT (.+) FROM user_session").
 					WithArgs(args.id).
@@ -135,10 +136,9 @@ func TestUserRepository_Get(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockBehavior(tt.args, tt.want)
-			tt.want.UserId = tt.args.userId
 
 			// Getting a user session.
-			got, err := repos.Get(context.Background(), tt.args.id, tt.args.userId)
+			got, err := repos.Get(context.Background(), tt.args.id)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("error getting user session: %s", err.Error())
 			}
@@ -241,7 +241,10 @@ func TestUserRepository_Delete(t *testing.T) {
 	defer mock.Close()
 
 	// Testing args.
-	type args struct{ id, userId ksuid.KSUID }
+	type args struct {
+		id      ksuid.KSUID
+		payload string
+	}
 
 	// Test behavior.
 	type mockBehavior func(args args)
@@ -257,11 +260,14 @@ func TestUserRepository_Delete(t *testing.T) {
 		mockBehavior mockBehavior
 	}{
 		{
-			name:    "OK",
-			args:    args{id: ksuid.New(), userId: ksuid.New()},
+			name: "OK",
+			args: args{
+				id:      ksuid.New(),
+				payload: "91b9b4ddda35be0338407fbaa76bb6adfe2dba8ad6719fe0ebae006c297b529f",
+			},
 			wantErr: false,
 			mockBehavior: func(args args) {
-				rows := mock.NewRows([]string{"user_id"}).AddRow(args.userId)
+				rows := mock.NewRows([]string{"payload"}).AddRow(args.payload)
 
 				mock.ExpectBegin()
 
@@ -284,7 +290,7 @@ func TestUserRepository_Delete(t *testing.T) {
 			tt.mockBehavior(tt.args)
 
 			// Deleting a user session.
-			err := repos.Delete(context.Background(), tt.args.id, tt.args.userId)
+			err := repos.Delete(context.Background(), tt.args.id, tt.args.payload)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("error deleting user session: %s", err.Error())
 			}

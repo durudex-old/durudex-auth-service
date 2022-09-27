@@ -27,26 +27,26 @@ import (
 
 // Client structure.
 type Client struct {
-	User  UserClient
-	Code  CodeClient
-	Email EmailClient
+	User  *UserClient
+	Code  *CodeClient
+	Email *EmailClient
 }
 
 // User client structure.
 type UserClient struct {
-	User v1.UserServiceClient
+	v1.UserServiceClient
 	conn *grpc.ClientConn
 }
 
 // Code client structure.
 type CodeClient struct {
-	User v1.UserCodeServiceClient
+	v1.UserCodeServiceClient
 	conn *grpc.ClientConn
 }
 
 // Email client structure.
 type EmailClient struct {
-	User v1.EmailUserServiceClient
+	v1.EmailUserServiceClient
 	conn *grpc.ClientConn
 }
 
@@ -59,17 +59,35 @@ func NewClient(cfg config.ServiceConfig) *Client {
 	emailServiceConn := ConnectToGRPCService(cfg.Email)
 
 	return &Client{
-		User: UserClient{
-			User: v1.NewUserServiceClient(userServiceConn),
-			conn: userServiceConn,
+		User: &UserClient{
+			v1.NewUserServiceClient(userServiceConn),
+			userServiceConn,
 		},
-		Code: CodeClient{
-			User: v1.NewUserCodeServiceClient(codeServiceConn),
-			conn: codeServiceConn,
+		Code: &CodeClient{
+			v1.NewUserCodeServiceClient(codeServiceConn),
+			codeServiceConn,
 		},
-		Email: EmailClient{
-			User: v1.NewEmailUserServiceClient(emailServiceConn),
-			conn: emailServiceConn,
+		Email: &EmailClient{
+			v1.NewEmailUserServiceClient(emailServiceConn),
+			emailServiceConn,
 		},
+	}
+}
+
+// Closing a client connections.
+func (c *Client) Close() {
+	log.Info().Msg("Closing a client connections")
+
+	// Closing user service connection.
+	if err := c.User.conn.Close(); err != nil {
+		log.Fatal().Err(err).Msg("failed to close user service connection")
+	}
+	// Closing code service connection.
+	if err := c.Code.conn.Close(); err != nil {
+		log.Fatal().Err(err).Msg("failed to close code service connection")
+	}
+	// Closing email service connection.
+	if err := c.Email.conn.Close(); err != nil {
+		log.Fatal().Err(err).Msg("failed to close email service connection")
 	}
 }

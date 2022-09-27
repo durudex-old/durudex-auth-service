@@ -34,11 +34,11 @@ type User interface {
 	// Creating a new user session.
 	Create(ctx context.Context, session domain.UserSession) error
 	// Getting a user session.
-	Get(ctx context.Context, id, userId ksuid.KSUID) (domain.UserSession, error)
+	Get(ctx context.Context, id ksuid.KSUID) (domain.UserSession, error)
 	// Getting a user session list.
 	GetList(ctx context.Context, userId ksuid.KSUID, sort domain.SortOptions) ([]domain.UserSession, error)
 	// Deleting a user session.
-	Delete(ctx context.Context, id, userId ksuid.KSUID) error
+	Delete(ctx context.Context, id ksuid.KSUID, payload string) error
 }
 
 // User session repository structure.
@@ -58,7 +58,7 @@ func (r *UserRepository) Create(ctx context.Context, session domain.UserSession)
 }
 
 // Getting a user session.
-func (r *UserRepository) Get(ctx context.Context, id, userId ksuid.KSUID) (domain.UserSession, error) {
+func (r *UserRepository) Get(ctx context.Context, id ksuid.KSUID) (domain.UserSession, error) {
 	var session domain.UserSession
 
 	query := "SELECT user_id, payload, ip, expires_in FROM user_session WHERE id=$1"
@@ -71,11 +71,6 @@ func (r *UserRepository) Get(ctx context.Context, id, userId ksuid.KSUID) (domai
 		}
 
 		return domain.UserSession{}, err
-	}
-
-	// Check is session user id similar to specified user id.
-	if session.UserId != userId {
-		return domain.UserSession{}, &domain.Error{Code: domain.CodeInvalidArgument, Message: "User id is not similar"}
 	}
 
 	return session, nil
@@ -147,21 +142,21 @@ func (r *UserRepository) GetList(ctx context.Context, userId ksuid.KSUID, sort d
 }
 
 // Deleting a user session.
-func (r *UserRepository) Delete(ctx context.Context, id, userId ksuid.KSUID) error {
+func (r *UserRepository) Delete(ctx context.Context, id ksuid.KSUID, payload string) error {
 	// Creating a new transaction.
 	tx, err := r.psql.Begin(ctx)
 	if err != nil {
 		return err
 	}
 
-	var value ksuid.KSUID
+	var dPayload string
 
 	// Query session user_id.
-	query := "SELECT user_id FROM user_session WHERE id=$1"
+	query := "SELECT payload FROM user_session WHERE id=$1"
 	row := tx.QueryRow(ctx, query, id)
 
 	// Scanning query row.
-	if err := row.Scan(&value); err != nil {
+	if err := row.Scan(&dPayload); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return &domain.Error{Code: domain.CodeNotFound, Message: "Session not found"}
 		}
@@ -169,9 +164,9 @@ func (r *UserRepository) Delete(ctx context.Context, id, userId ksuid.KSUID) err
 		return err
 	}
 
-	// Check is session user id similar to specified user id.
-	if value != userId {
-		return &domain.Error{Code: domain.CodeInvalidArgument, Message: "User id is not similar"}
+	// Checking user session payload for similar input payload.
+	if payload != dPayload {
+		return &domain.Error{Code: domain.CodeInvalidArgument, Message: "Session payload is not similar"}
 	}
 
 	// Deleting user session.

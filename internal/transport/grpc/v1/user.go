@@ -73,7 +73,6 @@ func (h *UserHandler) UserSignOut(ctx context.Context, input *v1.UserSignOutRequ
 	err := h.service.SignOut(ctx, domain.UserSignOutInput{
 		Refresh: input.Refresh,
 		Secret:  input.Secret,
-		Ip:      input.Ip,
 	})
 
 	return &v1.UserSignOutResponse{}, err
@@ -84,7 +83,6 @@ func (h *UserHandler) RefreshUserToken(ctx context.Context, input *v1.RefreshUse
 	access, err := h.service.RefreshToken(ctx, domain.UserRefreshTokenInput{
 		Refresh: input.Refresh,
 		Secret:  input.Secret,
-		Ip:      input.Ip,
 	})
 	if err != nil {
 		return &v1.RefreshUserTokenResponse{}, err
