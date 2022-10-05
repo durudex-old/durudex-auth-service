@@ -34,11 +34,11 @@ type User interface {
 	// Creating a new user session.
 	Create(ctx context.Context, session domain.UserSession) error
 	// Getting a user session.
-	Get(ctx context.Context, id ksuid.KSUID) (domain.UserSession, error)
+	Get(ctx context.Context, id, userId ksuid.KSUID) (domain.UserSession, error)
 	// Getting a user sessions list.
 	GetList(ctx context.Context, userId ksuid.KSUID, sort domain.SortOptions) ([]domain.UserSession, error)
 	// Deleting a user session.
-	Delete(ctx context.Context, id ksuid.KSUID, payload string) error
+	Delete(ctx context.Context, id, userId ksuid.KSUID, payload string) error
 	// Getting total user session count.
 	GetTotalCount(ctx context.Context, userId ksuid.KSUID) (int32, error)
 }
@@ -60,14 +60,14 @@ func (r *UserRepository) Create(ctx context.Context, session domain.UserSession)
 }
 
 // Getting a user session.
-func (r *UserRepository) Get(ctx context.Context, id ksuid.KSUID) (domain.UserSession, error) {
+func (r *UserRepository) Get(ctx context.Context, id, userId ksuid.KSUID) (domain.UserSession, error) {
 	var session domain.UserSession
 
-	query := "SELECT user_id, payload, ip, expires_in FROM user_session WHERE id=$1"
-	row := r.psql.QueryRow(ctx, query, id)
+	query := "SELECT payload, ip, expires_in FROM user_session WHERE user_id=$1 AND id=$2"
+	row := r.psql.QueryRow(ctx, query, userId, id)
 
 	// Scanning query row.
-	if err := row.Scan(&session.UserId, &session.Payload, &session.Ip, &session.ExpiresIn); err != nil {
+	if err := row.Scan(&session.Payload, &session.Ip, &session.ExpiresIn); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return domain.UserSession{}, &domain.Error{Code: domain.CodeNotFound, Message: "Session not found"}
 		}
@@ -82,7 +82,7 @@ func (r *UserRepository) Get(ctx context.Context, id ksuid.KSUID) (domain.UserSe
 func (r *UserRepository) GetList(ctx context.Context, userId ksuid.KSUID, sort domain.SortOptions) ([]domain.UserSession, error) {
 	var n int32
 
-	qb := sqlf.Select("id, payload, ip, expires_in").From("user_session").Where("user_id = ?", userId)
+	qb := sqlf.Select("id, ip, expires_in").From("user_session").Where("user_id = ?", userId)
 
 	// Added first or last sort option.
 	if sort.First != nil {
@@ -118,7 +118,7 @@ func (r *UserRepository) GetList(ctx context.Context, userId ksuid.KSUID, sort d
 		var session domain.UserSession
 
 		// Scanning query row.
-		if err := rows.Scan(&session.Id, &session.Payload, &session.Ip, &session.ExpiresIn); err != nil {
+		if err := rows.Scan(&session.Id, &session.Ip, &session.ExpiresIn); err != nil {
 			return nil, err
 		}
 
@@ -144,7 +144,7 @@ func (r *UserRepository) GetList(ctx context.Context, userId ksuid.KSUID, sort d
 }
 
 // Deleting a user session.
-func (r *UserRepository) Delete(ctx context.Context, id ksuid.KSUID, payload string) error {
+func (r *UserRepository) Delete(ctx context.Context, id, userId ksuid.KSUID, payload string) error {
 	// Creating a new transaction.
 	tx, err := r.psql.Begin(ctx)
 	if err != nil {
@@ -154,8 +154,8 @@ func (r *UserRepository) Delete(ctx context.Context, id ksuid.KSUID, payload str
 	var dPayload string
 
 	// Query session user_id.
-	query := "SELECT payload FROM user_session WHERE id=$1"
-	row := tx.QueryRow(ctx, query, id)
+	query := "SELECT payload FROM user_session WHERE user_id=$1 AND id=$2"
+	row := tx.QueryRow(ctx, query, userId, id)
 
 	// Scanning query row.
 	if err := row.Scan(&dPayload); err != nil {

@@ -16,7 +16,3 @@
  */
 
 DROP TABLE IF EXISTS user_session;
-
-DROP INDEX IF EXISTS user_session_id_idx;
-
-DROP INDEX IF EXISTS user_session_user_id_idx;

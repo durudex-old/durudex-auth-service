@@ -28,6 +28,10 @@ github.com/durudex/go-protobuf-type v0.0.2 h1:iO+cH7tHhvSRxb2Slyx8l/lNLLRpUsbJnM
 github.com/durudex/go-protobuf-type v0.0.2/go.mod h1:tfn+X0BJehtkLXY12B/b8AwFMR6HtDuqMqntgYqb1GM=
 github.com/durudex/go-refresh v0.0.2 h1:4v/ZVlV4aGQ5PIugMF3vJgA57JVGQa+dkcYr7bGF8m0=
 github.com/durudex/go-refresh v0.0.2/go.mod h1:7LJg4zWgqCcbnd1wlMTfr3vIBtRioo2OBaNnfS5VPsI=
+github.com/durudex/go-refresh v0.0.3-0.20221005182513-938374bf45e4 h1:cX5uIjwez1R3Lcl0NLliMBwTMjW36mPTp1k8blMZtgE=
+github.com/durudex/go-refresh v0.0.3-0.20221005182513-938374bf45e4/go.mod h1:7LJg4zWgqCcbnd1wlMTfr3vIBtRioo2OBaNnfS5VPsI=
+github.com/durudex/go-refresh v0.0.3 h1:FtM56Tomxtz0sNArSHPZyzr0RgX14zz2fo4x6t5BjKI=
+github.com/durudex/go-refresh v0.0.3/go.mod h1:7LJg4zWgqCcbnd1wlMTfr3vIBtRioo2OBaNnfS5VPsI=
 github.com/envoyproxy/go-control-plane v0.9.0/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymFceY/DCBVvsKhRF0iEA4=
 github.com/envoyproxy/go-control-plane v0.9.1-0.20191026205805-5f8ba28d4473/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymFceY/DCBVvsKhRF0iEA4=
 github.com/envoyproxy/go-control-plane v0.9.4/go.mod h1:6rpuAdCZL397s3pYoYcLgu1mIlRU8Am5FuJP05cCM98=

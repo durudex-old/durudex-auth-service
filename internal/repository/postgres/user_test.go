@@ -96,7 +96,7 @@ func TestUserRepository_Get(t *testing.T) {
 	defer mock.Close()
 
 	// Testing args.
-	type args struct{ id ksuid.KSUID }
+	type args struct{ id, userId ksuid.KSUID }
 
 	// Test behavior.
 	type mockBehavior func(args args, session domain.UserSession)
@@ -114,19 +114,18 @@ func TestUserRepository_Get(t *testing.T) {
 	}{
 		{
 			name: "OK",
-			args: args{id: ksuid.New()},
+			args: args{id: ksuid.New(), userId: ksuid.New()},
 			want: domain.UserSession{
-				UserId:    ksuid.New(),
 				Payload:   "0000000000000000000000000000000000000000000000000000000000000000",
 				Ip:        "0.0.0.0",
 				ExpiresIn: time.Now(),
 			},
 			mockBehavior: func(args args, session domain.UserSession) {
-				rows := mock.NewRows([]string{"user_id", "payload", "ip", "expires_in"}).AddRow(
-					session.UserId, session.Payload, session.Ip, session.ExpiresIn)
+				rows := mock.NewRows([]string{"payload", "ip", "expires_in"}).AddRow(
+					session.Payload, session.Ip, session.ExpiresIn)
 
 				mock.ExpectQuery("SELECT (.+) FROM user_session").
-					WithArgs(args.id).
+					WithArgs(args.userId, args.id).
 					WillReturnRows(rows)
 			},
 		},
@@ -138,9 +137,9 @@ func TestUserRepository_Get(t *testing.T) {
 			tt.mockBehavior(tt.args, tt.want)
 
 			// Getting a user session.
-			got, err := repos.Get(context.Background(), tt.args.id)
+			got, err := repos.Get(context.Background(), tt.args.id, tt.args.userId)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("error getting user session: %s", err.Error())
+				t.Fatalf("error getting user session: %s", err.Error())
 			}
 
 			// Check for similarity of user session.
@@ -195,14 +194,13 @@ func TestUserRepository_GetList(t *testing.T) {
 			want: []domain.UserSession{
 				{
 					Id:        ksuid.New(),
-					Payload:   "0000000000000000000000000000000000000000000000000000000000000000",
 					Ip:        "0.0.0.0",
 					ExpiresIn: time.Now(),
 				},
 			},
 			mockBehavior: func(args args, want []domain.UserSession) {
-				rows := mock.NewRows([]string{"id", "payload", "ip", "expires_in"}).AddRow(
-					want[0].Id, want[0].Payload, want[0].Ip, want[0].ExpiresIn,
+				rows := mock.NewRows([]string{"id", "ip", "expires_in"}).AddRow(
+					want[0].Id, want[0].Ip, want[0].ExpiresIn,
 				)
 
 				mock.ExpectQuery("SELECT (.+) FROM user_session").
@@ -243,6 +241,7 @@ func TestUserRepository_Delete(t *testing.T) {
 	// Testing args.
 	type args struct {
 		id      ksuid.KSUID
+		userId  ksuid.KSUID
 		payload string
 	}
 
@@ -263,6 +262,7 @@ func TestUserRepository_Delete(t *testing.T) {
 			name: "OK",
 			args: args{
 				id:      ksuid.New(),
+				userId:  ksuid.New(),
 				payload: "91b9b4ddda35be0338407fbaa76bb6adfe2dba8ad6719fe0ebae006c297b529f",
 			},
 			wantErr: false,
@@ -272,7 +272,7 @@ func TestUserRepository_Delete(t *testing.T) {
 				mock.ExpectBegin()
 
 				mock.ExpectQuery("SELECT (.+) FROM user_session").
-					WithArgs(args.id).
+					WithArgs(args.userId, args.id).
 					WillReturnRows(rows)
 
 				mock.ExpectExec("DELETE FROM user_session").
@@ -290,7 +290,7 @@ func TestUserRepository_Delete(t *testing.T) {
 			tt.mockBehavior(tt.args)
 
 			// Deleting a user session.
-			err := repos.Delete(context.Background(), tt.args.id, tt.args.payload)
+			err := repos.Delete(context.Background(), tt.args.id, tt.args.userId, tt.args.payload)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("error deleting user session: %s", err.Error())
 			}
@@ -308,7 +308,7 @@ func TestUserRepository_GetTotalCount(t *testing.T) {
 	defer mock.Close()
 
 	// Testing args.
-	type args struct{ authorId ksuid.KSUID }
+	type args struct{ userId ksuid.KSUID }
 
 	// Test behavior.
 	type mockBehavior func(args args, want int32)
@@ -326,13 +326,13 @@ func TestUserRepository_GetTotalCount(t *testing.T) {
 	}{
 		{
 			name: "OK",
-			args: args{authorId: ksuid.New()},
+			args: args{userId: ksuid.New()},
 			want: 10,
 			mockBehavior: func(args args, want int32) {
 				rows := mock.NewRows([]string{"count(*)"}).AddRow(want)
 
 				mock.ExpectQuery("SELECT (.+) FROM user_session").
-					WithArgs(args.authorId).
+					WithArgs(args.userId).
 					WillReturnRows(rows)
 			},
 		},
@@ -344,7 +344,7 @@ func TestUserRepository_GetTotalCount(t *testing.T) {
 			tt.mockBehavior(tt.args, tt.want)
 
 			// Getting total user session count.
-			got, err := repos.GetTotalCount(context.Background(), tt.args.authorId)
+			got, err := repos.GetTotalCount(context.Background(), tt.args.userId)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("error getting total user session count: %s", err.Error())
 			}

@@ -16,13 +16,10 @@
  */
 
 CREATE TABLE IF NOT EXISTS user_session (
-  id         CHAR(27)    NOT NULL PRIMARY KEY,
-  user_id    CHAR(27)    NOT NULL,
-  payload    VARCHAR(64) NOT NULL,
-  ip         INET        NOT NULL,
-  expires_in TIMESTAMP   NOT NULL
+  id         CHAR(27)  NOT NULL,
+  user_id    CHAR(27)  NOT NULL,
+  payload    CHAR(64)  NOT NULL,
+  ip         INET      NOT NULL,
+  expires_in TIMESTAMP NOT NULL,
+  CONSTRAINT user_session_pkey PRIMARY KEY (user_id DESC, id DESC)
 );
-
-CREATE UNIQUE INDEX IF NOT EXISTS user_session_id_idx ON user_session (id DESC);
-
-CREATE INDEX IF NOT EXISTS user_session_user_id_idx ON user_session (user_id DESC);

@@ -164,52 +164,64 @@ func (s *UserService) CreateSession(ctx context.Context, userId ksuid.KSUID, ip,
 		return domain.UserTokens{}, err
 	}
 
-	return domain.UserTokens{Refresh: r.Token(sessionId.String()), Access: access}, nil
+	return domain.UserTokens{Refresh: r.Token(sessionId.String(), userId.String()), Access: access}, nil
 }
 
 // User SignOut.
 func (s *UserService) SignOut(ctx context.Context, token, secret string) error {
 	// Parsing refresh token string.
-	r, sId, err := refresh.Parse(token)
+	r, err := refresh.Parse(token)
 	if err != nil {
 		return err
 	}
 
 	// Parsing session id string.
-	id, err := ksuid.Parse(sId)
+	id, err := ksuid.Parse(r.Session)
+	if err != nil {
+		return err
+	}
+
+	// Parsing user id string.
+	userId, err := ksuid.Parse(r.Object)
 	if err != nil {
 		return err
 	}
 
 	// Hashing refresh token by secret key.
-	payload := r.Hash([]byte(secret))
+	payload := r.Payload.Hash([]byte(secret))
 
 	// Deleting a user session.
-	return s.auth.Delete(ctx, id, fmt.Sprintf("%x", payload))
+	return s.auth.Delete(ctx, id, userId, fmt.Sprintf("%x", payload))
 }
 
 // Refresh user token.
 func (s *UserService) RefreshToken(ctx context.Context, token, secret string) (string, error) {
 	// Parsing refresh token string.
-	r, sId, err := refresh.Parse(token)
+	r, err := refresh.Parse(token)
 	if err != nil {
 		return "", err
 	}
 
 	// Parsing session id string.
-	id, err := ksuid.Parse(sId)
+	id, err := ksuid.Parse(r.Session)
+	if err != nil {
+		return "", err
+	}
+
+	// Parsing user id string.
+	userId, err := ksuid.Parse(r.Object)
 	if err != nil {
 		return "", err
 	}
 
 	// Getting a user session.
-	session, err := s.auth.Get(ctx, id)
+	session, err := s.auth.Get(ctx, id, userId)
 	if err != nil {
 		return "", err
 	}
 
 	// Hashing refresh token by secret key.
-	payload := r.Hash([]byte(secret))
+	payload := r.Payload.Hash([]byte(secret))
 
 	// Checking user session payload for similar input payload.
 	if session.Payload != fmt.Sprintf("%x", payload) {
@@ -228,7 +240,7 @@ func (s *UserService) RefreshToken(ctx context.Context, token, secret string) (s
 // Getting a user session.
 func (s *UserService) GetSession(ctx context.Context, id, userId ksuid.KSUID) (domain.UserSession, error) {
 	// Getting a user session.
-	session, err := s.auth.Get(ctx, id)
+	session, err := s.auth.Get(ctx, id, userId)
 	if err != nil {
 		return domain.UserSession{}, err
 	}
@@ -260,22 +272,28 @@ func (s *UserService) GetSessions(ctx context.Context, userId ksuid.KSUID, sort 
 // Deleting a user session.
 func (s *UserService) DeleteSession(ctx context.Context, token, secret string) error {
 	// Parsing refresh token string.
-	r, sId, err := refresh.Parse(token)
+	r, err := refresh.Parse(token)
 	if err != nil {
 		return err
 	}
 
 	// Parsing session id string.
-	id, err := ksuid.Parse(sId)
+	id, err := ksuid.Parse(r.Session)
+	if err != nil {
+		return err
+	}
+
+	// Parsing user id string.
+	userId, err := ksuid.Parse(r.Object)
 	if err != nil {
 		return err
 	}
 
 	// Hashing refresh token by secret key.
-	payload := r.Hash([]byte(secret))
+	payload := r.Payload.Hash([]byte(secret))
 
 	// Deleting a user session.
-	return s.auth.Delete(ctx, id, fmt.Sprintf("%x", payload))
+	return s.auth.Delete(ctx, id, userId, fmt.Sprintf("%x", payload))
 }
 
 // Getting total user session count.
