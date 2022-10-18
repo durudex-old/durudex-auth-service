@@ -31,7 +31,7 @@ import (
 )
 
 // Testing creating a new user session.
-func TestUserRepository_Create(t *testing.T) {
+func TestSessionRepository_Create(t *testing.T) {
 	// Creating a new mock pool connection.
 	mock, err := pgxmock.NewPool()
 	if err != nil {
@@ -46,7 +46,7 @@ func TestUserRepository_Create(t *testing.T) {
 	type mockBehavior func(args args)
 
 	// Creating a new repository.
-	repos := postgres.NewUserRepository(mock)
+	repos := postgres.NewSessionRepository(mock)
 
 	// Tests structures.
 	tests := []struct {
@@ -87,7 +87,7 @@ func TestUserRepository_Create(t *testing.T) {
 }
 
 // Testing getting a user session.
-func TestUserRepository_Get(t *testing.T) {
+func TestSessionRepository_Get(t *testing.T) {
 	// Creating a new mock pool connection.
 	mock, err := pgxmock.NewPool()
 	if err != nil {
@@ -102,7 +102,7 @@ func TestUserRepository_Get(t *testing.T) {
 	type mockBehavior func(args args, session domain.UserSession)
 
 	// Creating a new repository.
-	repos := postgres.NewUserRepository(mock)
+	repos := postgres.NewSessionRepository(mock)
 
 	// Tests structures.
 	tests := []struct {
@@ -137,7 +137,7 @@ func TestUserRepository_Get(t *testing.T) {
 			tt.mockBehavior(tt.args, tt.want)
 
 			// Getting a user session.
-			got, err := repos.Get(context.Background(), tt.args.id, tt.args.userId)
+			got, err := repos.Get(context.Background(), tt.args.userId, tt.args.id)
 			if (err != nil) != tt.wantErr {
 				t.Fatalf("error getting user session: %s", err.Error())
 			}
@@ -151,7 +151,7 @@ func TestUserRepository_Get(t *testing.T) {
 }
 
 // Testing getting a user session list.
-func TestUserRepository_GetList(t *testing.T) {
+func TestSessionRepository_GetList(t *testing.T) {
 	// Creating a new mock pool connection.
 	mock, err := pgxmock.NewPool()
 	if err != nil {
@@ -169,7 +169,7 @@ func TestUserRepository_GetList(t *testing.T) {
 	type mockBehavior func(args args, want []domain.UserSession)
 
 	// Creating a new repository.
-	repos := postgres.NewUserRepository(mock)
+	repos := postgres.NewSessionRepository(mock)
 
 	// Query filter.
 	var limit int32 = 12
@@ -230,7 +230,7 @@ func TestUserRepository_GetList(t *testing.T) {
 }
 
 // Testing deleting a user session.
-func TestUserRepository_Delete(t *testing.T) {
+func TestSessionRepository_Delete(t *testing.T) {
 	// Creating a new mock pool connection.
 	mock, err := pgxmock.NewPool()
 	if err != nil {
@@ -240,16 +240,15 @@ func TestUserRepository_Delete(t *testing.T) {
 
 	// Testing args.
 	type args struct {
-		id      ksuid.KSUID
-		userId  ksuid.KSUID
-		payload string
+		id     ksuid.KSUID
+		userId ksuid.KSUID
 	}
 
 	// Test behavior.
 	type mockBehavior func(args args)
 
 	// Creating a new repository.
-	repos := postgres.NewUserRepository(mock)
+	repos := postgres.NewSessionRepository(mock)
 
 	// Tests structures.
 	tests := []struct {
@@ -261,25 +260,14 @@ func TestUserRepository_Delete(t *testing.T) {
 		{
 			name: "OK",
 			args: args{
-				id:      ksuid.New(),
-				userId:  ksuid.New(),
-				payload: "91b9b4ddda35be0338407fbaa76bb6adfe2dba8ad6719fe0ebae006c297b529f",
+				id:     ksuid.New(),
+				userId: ksuid.New(),
 			},
 			wantErr: false,
 			mockBehavior: func(args args) {
-				rows := mock.NewRows([]string{"payload"}).AddRow(args.payload)
-
-				mock.ExpectBegin()
-
-				mock.ExpectQuery("SELECT (.+) FROM user_session").
-					WithArgs(args.userId, args.id).
-					WillReturnRows(rows)
-
 				mock.ExpectExec("DELETE FROM user_session").
 					WithArgs(args.id).
 					WillReturnResult(pgxmock.NewResult("", 1))
-
-				mock.ExpectCommit()
 			},
 		},
 	}
@@ -290,7 +278,7 @@ func TestUserRepository_Delete(t *testing.T) {
 			tt.mockBehavior(tt.args)
 
 			// Deleting a user session.
-			err := repos.Delete(context.Background(), tt.args.id, tt.args.userId, tt.args.payload)
+			err := repos.Delete(context.Background(), tt.args.userId, tt.args.id)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("error deleting user session: %s", err.Error())
 			}
@@ -299,7 +287,7 @@ func TestUserRepository_Delete(t *testing.T) {
 }
 
 // Testing getting total user session count.
-func TestUserRepository_GetTotalCount(t *testing.T) {
+func TestSessionRepository_GetTotalCount(t *testing.T) {
 	// Creating a new mock pool connection.
 	mock, err := pgxmock.NewPool()
 	if err != nil {
@@ -314,7 +302,7 @@ func TestUserRepository_GetTotalCount(t *testing.T) {
 	type mockBehavior func(args args, want int32)
 
 	// Creating a new repository.
-	repos := postgres.NewUserRepository(mock)
+	repos := postgres.NewSessionRepository(mock)
 
 	// Tests structures.
 	tests := []struct {

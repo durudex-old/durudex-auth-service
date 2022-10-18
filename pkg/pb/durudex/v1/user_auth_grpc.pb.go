@@ -22,18 +22,8 @@ type UserAuthServiceClient interface {
 	UserSignUp(ctx context.Context, in *UserSignUpRequest, opts ...grpc.CallOption) (*UserSignUpResponse, error)
 	// User Sign In.
 	UserSignIn(ctx context.Context, in *UserSignInRequest, opts ...grpc.CallOption) (*UserSignInResponse, error)
-	// User Sign Out.
-	UserSignOut(ctx context.Context, in *UserSignOutRequest, opts ...grpc.CallOption) (*UserSignOutResponse, error)
 	// Refresh user authentication token.
 	RefreshUserToken(ctx context.Context, in *RefreshUserTokenRequest, opts ...grpc.CallOption) (*RefreshUserTokenResponse, error)
-	// Getting a user session.
-	GetUserSession(ctx context.Context, in *GetUserSessionRequest, opts ...grpc.CallOption) (*GetUserSessionResponse, error)
-	// Getting a user sessions.
-	GetUserSessions(ctx context.Context, in *GetUserSessionsRequest, opts ...grpc.CallOption) (*GetUserSessionsResponse, error)
-	// Deleting a user session.
-	DeleteUserSession(ctx context.Context, in *DeleteUserSessionRequest, opts ...grpc.CallOption) (*DeleteUserSessionResponse, error)
-	// Getting total user session count.
-	GetTotalUserSessionCount(ctx context.Context, in *GetTotalUserSessionCountRequest, opts ...grpc.CallOption) (*GetTotalUserSessionCountResponse, error)
 }
 
 type userAuthServiceClient struct {
@@ -62,54 +52,9 @@ func (c *userAuthServiceClient) UserSignIn(ctx context.Context, in *UserSignInRe
 	return out, nil
 }
 
-func (c *userAuthServiceClient) UserSignOut(ctx context.Context, in *UserSignOutRequest, opts ...grpc.CallOption) (*UserSignOutResponse, error) {
-	out := new(UserSignOutResponse)
-	err := c.cc.Invoke(ctx, "/durudex.v1.UserAuthService/UserSignOut", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *userAuthServiceClient) RefreshUserToken(ctx context.Context, in *RefreshUserTokenRequest, opts ...grpc.CallOption) (*RefreshUserTokenResponse, error) {
 	out := new(RefreshUserTokenResponse)
 	err := c.cc.Invoke(ctx, "/durudex.v1.UserAuthService/RefreshUserToken", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *userAuthServiceClient) GetUserSession(ctx context.Context, in *GetUserSessionRequest, opts ...grpc.CallOption) (*GetUserSessionResponse, error) {
-	out := new(GetUserSessionResponse)
-	err := c.cc.Invoke(ctx, "/durudex.v1.UserAuthService/GetUserSession", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *userAuthServiceClient) GetUserSessions(ctx context.Context, in *GetUserSessionsRequest, opts ...grpc.CallOption) (*GetUserSessionsResponse, error) {
-	out := new(GetUserSessionsResponse)
-	err := c.cc.Invoke(ctx, "/durudex.v1.UserAuthService/GetUserSessions", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *userAuthServiceClient) DeleteUserSession(ctx context.Context, in *DeleteUserSessionRequest, opts ...grpc.CallOption) (*DeleteUserSessionResponse, error) {
-	out := new(DeleteUserSessionResponse)
-	err := c.cc.Invoke(ctx, "/durudex.v1.UserAuthService/DeleteUserSession", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *userAuthServiceClient) GetTotalUserSessionCount(ctx context.Context, in *GetTotalUserSessionCountRequest, opts ...grpc.CallOption) (*GetTotalUserSessionCountResponse, error) {
-	out := new(GetTotalUserSessionCountResponse)
-	err := c.cc.Invoke(ctx, "/durudex.v1.UserAuthService/GetTotalUserSessionCount", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -124,18 +69,8 @@ type UserAuthServiceServer interface {
 	UserSignUp(context.Context, *UserSignUpRequest) (*UserSignUpResponse, error)
 	// User Sign In.
 	UserSignIn(context.Context, *UserSignInRequest) (*UserSignInResponse, error)
-	// User Sign Out.
-	UserSignOut(context.Context, *UserSignOutRequest) (*UserSignOutResponse, error)
 	// Refresh user authentication token.
 	RefreshUserToken(context.Context, *RefreshUserTokenRequest) (*RefreshUserTokenResponse, error)
-	// Getting a user session.
-	GetUserSession(context.Context, *GetUserSessionRequest) (*GetUserSessionResponse, error)
-	// Getting a user sessions.
-	GetUserSessions(context.Context, *GetUserSessionsRequest) (*GetUserSessionsResponse, error)
-	// Deleting a user session.
-	DeleteUserSession(context.Context, *DeleteUserSessionRequest) (*DeleteUserSessionResponse, error)
-	// Getting total user session count.
-	GetTotalUserSessionCount(context.Context, *GetTotalUserSessionCountRequest) (*GetTotalUserSessionCountResponse, error)
 	mustEmbedUnimplementedUserAuthServiceServer()
 }
 
@@ -149,23 +84,8 @@ func (UnimplementedUserAuthServiceServer) UserSignUp(context.Context, *UserSignU
 func (UnimplementedUserAuthServiceServer) UserSignIn(context.Context, *UserSignInRequest) (*UserSignInResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UserSignIn not implemented")
 }
-func (UnimplementedUserAuthServiceServer) UserSignOut(context.Context, *UserSignOutRequest) (*UserSignOutResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UserSignOut not implemented")
-}
 func (UnimplementedUserAuthServiceServer) RefreshUserToken(context.Context, *RefreshUserTokenRequest) (*RefreshUserTokenResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RefreshUserToken not implemented")
-}
-func (UnimplementedUserAuthServiceServer) GetUserSession(context.Context, *GetUserSessionRequest) (*GetUserSessionResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetUserSession not implemented")
-}
-func (UnimplementedUserAuthServiceServer) GetUserSessions(context.Context, *GetUserSessionsRequest) (*GetUserSessionsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetUserSessions not implemented")
-}
-func (UnimplementedUserAuthServiceServer) DeleteUserSession(context.Context, *DeleteUserSessionRequest) (*DeleteUserSessionResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeleteUserSession not implemented")
-}
-func (UnimplementedUserAuthServiceServer) GetTotalUserSessionCount(context.Context, *GetTotalUserSessionCountRequest) (*GetTotalUserSessionCountResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetTotalUserSessionCount not implemented")
 }
 func (UnimplementedUserAuthServiceServer) mustEmbedUnimplementedUserAuthServiceServer() {}
 
@@ -216,24 +136,6 @@ func _UserAuthService_UserSignIn_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
-func _UserAuthService_UserSignOut_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UserSignOutRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserAuthServiceServer).UserSignOut(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/durudex.v1.UserAuthService/UserSignOut",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserAuthServiceServer).UserSignOut(ctx, req.(*UserSignOutRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _UserAuthService_RefreshUserToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RefreshUserTokenRequest)
 	if err := dec(in); err != nil {
@@ -248,78 +150,6 @@ func _UserAuthService_RefreshUserToken_Handler(srv interface{}, ctx context.Cont
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserAuthServiceServer).RefreshUserToken(ctx, req.(*RefreshUserTokenRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _UserAuthService_GetUserSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetUserSessionRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserAuthServiceServer).GetUserSession(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/durudex.v1.UserAuthService/GetUserSession",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserAuthServiceServer).GetUserSession(ctx, req.(*GetUserSessionRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _UserAuthService_GetUserSessions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetUserSessionsRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserAuthServiceServer).GetUserSessions(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/durudex.v1.UserAuthService/GetUserSessions",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserAuthServiceServer).GetUserSessions(ctx, req.(*GetUserSessionsRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _UserAuthService_DeleteUserSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteUserSessionRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserAuthServiceServer).DeleteUserSession(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/durudex.v1.UserAuthService/DeleteUserSession",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserAuthServiceServer).DeleteUserSession(ctx, req.(*DeleteUserSessionRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _UserAuthService_GetTotalUserSessionCount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetTotalUserSessionCountRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserAuthServiceServer).GetTotalUserSessionCount(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/durudex.v1.UserAuthService/GetTotalUserSessionCount",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserAuthServiceServer).GetTotalUserSessionCount(ctx, req.(*GetTotalUserSessionCountRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -340,28 +170,8 @@ var UserAuthService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _UserAuthService_UserSignIn_Handler,
 		},
 		{
-			MethodName: "UserSignOut",
-			Handler:    _UserAuthService_UserSignOut_Handler,
-		},
-		{
 			MethodName: "RefreshUserToken",
 			Handler:    _UserAuthService_RefreshUserToken_Handler,
-		},
-		{
-			MethodName: "GetUserSession",
-			Handler:    _UserAuthService_GetUserSession_Handler,
-		},
-		{
-			MethodName: "GetUserSessions",
-			Handler:    _UserAuthService_GetUserSessions_Handler,
-		},
-		{
-			MethodName: "DeleteUserSession",
-			Handler:    _UserAuthService_DeleteUserSession_Handler,
-		},
-		{
-			MethodName: "GetTotalUserSessionCount",
-			Handler:    _UserAuthService_GetTotalUserSessionCount_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

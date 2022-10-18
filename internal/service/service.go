@@ -24,9 +24,17 @@ import (
 )
 
 // Service structure.
-type Service struct{ User User }
+type Service struct {
+	User    User
+	Session Session
+}
 
 // Creating a new service.
 func NewService(repos *repository.Repository, client *client.Client, cfg *config.Config) *Service {
-	return &Service{User: NewUserService(repos.Postgres.User, client, &cfg.Auth)}
+	sessionService := NewSessionService(repos.Postgres.Session)
+
+	return &Service{
+		User:    NewUserService(sessionService, client, &cfg.Auth),
+		Session: sessionService,
+	}
 }

@@ -26,8 +26,8 @@ import (
 
 // Postgres repository structure.
 type PostgresRepository struct {
-	User User
-	pool postgres.Postgres
+	Session Session
+	pool    postgres.Postgres
 }
 
 // Creating a new postgres repository.
@@ -44,7 +44,7 @@ func NewPostgresRepository(cfg config.PostgresConfig) *PostgresRepository {
 		log.Fatal().Err(err).Msg("failed to create postgres pool connection")
 	}
 
-	return &PostgresRepository{User: NewUserRepository(pool), pool: pool}
+	return &PostgresRepository{Session: NewSessionRepository(pool), pool: pool}
 }
 
 // Closing postgres pool connections.

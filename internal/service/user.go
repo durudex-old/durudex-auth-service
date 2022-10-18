@@ -25,7 +25,6 @@ import (
 	"github.com/durudex/durudex-auth-service/internal/client"
 	"github.com/durudex/durudex-auth-service/internal/config"
 	"github.com/durudex/durudex-auth-service/internal/domain"
-	"github.com/durudex/durudex-auth-service/internal/repository/postgres"
 	"github.com/durudex/durudex-auth-service/pkg/auth"
 	v1 "github.com/durudex/durudex-auth-service/pkg/pb/durudex/v1"
 
@@ -41,24 +40,13 @@ type User interface {
 	SignIn(ctx context.Context, input domain.UserSignInInput) (domain.UserTokens, error)
 	// Creating a new user session.
 	CreateSession(ctx context.Context, userId ksuid.KSUID, ip, secret string) (domain.UserTokens, error)
-	// User SignOut.
-	SignOut(ctx context.Context, token, secret string) error
 	// Refresh user token.
 	RefreshToken(ctx context.Context, token, secret string) (string, error)
-	// Getting a user session.
-	GetSession(ctx context.Context, id, userId ksuid.KSUID) (domain.UserSession, error)
-	// Getting a user sessions list.
-	GetSessions(ctx context.Context, userId ksuid.KSUID, sort domain.SortOptions) ([]domain.UserSession, error)
-	// Deleting a user session.
-	DeleteSession(ctx context.Context, token, secret string) error
-	// Getting total user session count.
-	GetTotalCount(ctx context.Context, userId ksuid.KSUID) (int32, error)
 }
 
 // User service structure.
 type UserService struct {
-	// User auth repository.
-	auth postgres.User
+	session Session
 	// Service client.
 	client *client.Client
 	// Auth config variables.
@@ -66,8 +54,8 @@ type UserService struct {
 }
 
 // Creating a new user service.
-func NewUserService(repos postgres.User, client *client.Client, cfg *config.AuthConfig) *UserService {
-	return &UserService{auth: repos, client: client, cfg: cfg}
+func NewUserService(session Session, client *client.Client, cfg *config.AuthConfig) *UserService {
+	return &UserService{session: session, client: client, cfg: cfg}
 }
 
 // User SignUp.
@@ -148,7 +136,7 @@ func (s *UserService) CreateSession(ctx context.Context, userId ksuid.KSUID, ip,
 	sessionId := ksuid.New()
 
 	// Creating a new user session.
-	if err := s.auth.Create(ctx, domain.UserSession{
+	if err := s.session.Create(ctx, domain.UserSession{
 		Id:        sessionId,
 		UserId:    userId,
 		Payload:   fmt.Sprintf("%x", r.Hash([]byte(secret))),
@@ -165,33 +153,6 @@ func (s *UserService) CreateSession(ctx context.Context, userId ksuid.KSUID, ip,
 	}
 
 	return domain.UserTokens{Refresh: r.Token(sessionId.String(), userId.String()), Access: access}, nil
-}
-
-// User SignOut.
-func (s *UserService) SignOut(ctx context.Context, token, secret string) error {
-	// Parsing refresh token string.
-	r, err := refresh.Parse(token)
-	if err != nil {
-		return err
-	}
-
-	// Parsing session id string.
-	id, err := ksuid.Parse(r.Session)
-	if err != nil {
-		return err
-	}
-
-	// Parsing user id string.
-	userId, err := ksuid.Parse(r.Object)
-	if err != nil {
-		return err
-	}
-
-	// Hashing refresh token by secret key.
-	payload := r.Payload.Hash([]byte(secret))
-
-	// Deleting a user session.
-	return s.auth.Delete(ctx, id, userId, fmt.Sprintf("%x", payload))
 }
 
 // Refresh user token.
@@ -215,16 +176,13 @@ func (s *UserService) RefreshToken(ctx context.Context, token, secret string) (s
 	}
 
 	// Getting a user session.
-	session, err := s.auth.Get(ctx, id, userId)
+	session, err := s.session.Get(ctx, userId, id)
 	if err != nil {
 		return "", err
 	}
 
-	// Hashing refresh token by secret key.
-	payload := r.Payload.Hash([]byte(secret))
-
 	// Checking user session payload for similar input payload.
-	if session.Payload != fmt.Sprintf("%x", payload) {
+	if session.Payload != fmt.Sprintf("%x", r.Payload.Hash([]byte(secret))) {
 		return "", &domain.Error{Code: domain.CodeInvalidArgument, Message: "Session payload is not similar"}
 	}
 
@@ -235,68 +193,4 @@ func (s *UserService) RefreshToken(ctx context.Context, token, secret string) (s
 	}
 
 	return access, nil
-}
-
-// Getting a user session.
-func (s *UserService) GetSession(ctx context.Context, id, userId ksuid.KSUID) (domain.UserSession, error) {
-	// Getting a user session.
-	session, err := s.auth.Get(ctx, id, userId)
-	if err != nil {
-		return domain.UserSession{}, err
-	}
-
-	// Checking user session owner for similar input user id.
-	if session.UserId != userId {
-		return domain.UserSession{}, &domain.Error{Code: domain.CodeInvalidArgument, Message: "User id is not similar"}
-	}
-
-	return session, nil
-}
-
-// Getting a user sessions list.
-func (s *UserService) GetSessions(ctx context.Context, userId ksuid.KSUID, sort domain.SortOptions) ([]domain.UserSession, error) {
-	// Checking is first and last are set.
-	if sort.First == nil && sort.Last == nil {
-		return nil, &domain.Error{Message: "Must be `first` or `last`", Code: domain.CodeInvalidArgument}
-	}
-
-	// Getting a user sessions list.
-	sessions, err := s.auth.GetList(ctx, userId, sort)
-	if err != nil {
-		return nil, err
-	}
-
-	return sessions, nil
-}
-
-// Deleting a user session.
-func (s *UserService) DeleteSession(ctx context.Context, token, secret string) error {
-	// Parsing refresh token string.
-	r, err := refresh.Parse(token)
-	if err != nil {
-		return err
-	}
-
-	// Parsing session id string.
-	id, err := ksuid.Parse(r.Session)
-	if err != nil {
-		return err
-	}
-
-	// Parsing user id string.
-	userId, err := ksuid.Parse(r.Object)
-	if err != nil {
-		return err
-	}
-
-	// Hashing refresh token by secret key.
-	payload := r.Payload.Hash([]byte(secret))
-
-	// Deleting a user session.
-	return s.auth.Delete(ctx, id, userId, fmt.Sprintf("%x", payload))
-}
-
-// Getting total user session count.
-func (s *UserService) GetTotalCount(ctx context.Context, userId ksuid.KSUID) (int32, error) {
-	return s.auth.GetTotalCount(ctx, userId)
 }

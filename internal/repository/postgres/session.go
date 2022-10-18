@@ -30,29 +30,29 @@ import (
 )
 
 // User session repository interface.
-type User interface {
+type Session interface {
 	// Creating a new user session.
 	Create(ctx context.Context, session domain.UserSession) error
 	// Getting a user session.
-	Get(ctx context.Context, id, userId ksuid.KSUID) (domain.UserSession, error)
+	Get(ctx context.Context, userId, id ksuid.KSUID) (domain.UserSession, error)
 	// Getting a user sessions list.
 	GetList(ctx context.Context, userId ksuid.KSUID, sort domain.SortOptions) ([]domain.UserSession, error)
 	// Deleting a user session.
-	Delete(ctx context.Context, id, userId ksuid.KSUID, payload string) error
+	Delete(ctx context.Context, userId, id ksuid.KSUID) error
 	// Getting total user session count.
 	GetTotalCount(ctx context.Context, userId ksuid.KSUID) (int32, error)
 }
 
 // User session repository structure.
-type UserRepository struct{ psql postgres.Postgres }
+type SessionRepository struct{ psql postgres.Postgres }
 
 // Creating a new use session postgres repository.
-func NewUserRepository(psql postgres.Postgres) *UserRepository {
-	return &UserRepository{psql: psql}
+func NewSessionRepository(psql postgres.Postgres) *SessionRepository {
+	return &SessionRepository{psql: psql}
 }
 
 // Creating a new user session.
-func (r *UserRepository) Create(ctx context.Context, session domain.UserSession) error {
+func (r *SessionRepository) Create(ctx context.Context, session domain.UserSession) error {
 	query := "INSERT INTO user_session (id, user_id, payload, ip, expires_in) VALUES ($1, $2, $3, $4, $5)"
 	_, err := r.psql.Exec(ctx, query, session.Id, session.UserId, session.Payload, session.Ip, session.ExpiresIn)
 
@@ -60,7 +60,7 @@ func (r *UserRepository) Create(ctx context.Context, session domain.UserSession)
 }
 
 // Getting a user session.
-func (r *UserRepository) Get(ctx context.Context, id, userId ksuid.KSUID) (domain.UserSession, error) {
+func (r *SessionRepository) Get(ctx context.Context, userId, id ksuid.KSUID) (domain.UserSession, error) {
 	var session domain.UserSession
 
 	query := "SELECT payload, ip, expires_in FROM user_session WHERE user_id=$1 AND id=$2"
@@ -79,7 +79,7 @@ func (r *UserRepository) Get(ctx context.Context, id, userId ksuid.KSUID) (domai
 }
 
 // Getting a user sessions list.
-func (r *UserRepository) GetList(ctx context.Context, userId ksuid.KSUID, sort domain.SortOptions) ([]domain.UserSession, error) {
+func (r *SessionRepository) GetList(ctx context.Context, userId ksuid.KSUID, sort domain.SortOptions) ([]domain.UserSession, error) {
 	var n int32
 
 	qb := sqlf.Select("id, ip, expires_in").From("user_session").Where("user_id = ?", userId)
@@ -143,45 +143,16 @@ func (r *UserRepository) GetList(ctx context.Context, userId ksuid.KSUID, sort d
 	return res, nil
 }
 
+// TODO: fix payload.
 // Deleting a user session.
-func (r *UserRepository) Delete(ctx context.Context, id, userId ksuid.KSUID, payload string) error {
-	// Creating a new transaction.
-	tx, err := r.psql.Begin(ctx)
-	if err != nil {
-		return err
-	}
-
-	var dPayload string
-
-	// Query session user_id.
-	query := "SELECT payload FROM user_session WHERE user_id=$1 AND id=$2"
-	row := tx.QueryRow(ctx, query, userId, id)
-
-	// Scanning query row.
-	if err := row.Scan(&dPayload); err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return &domain.Error{Code: domain.CodeNotFound, Message: "Session not found"}
-		}
-
-		return err
-	}
-
-	// Checking user session payload for similar input payload.
-	if payload != dPayload {
-		return &domain.Error{Code: domain.CodeInvalidArgument, Message: "Session payload is not similar"}
-	}
-
+func (r *SessionRepository) Delete(ctx context.Context, userId, id ksuid.KSUID) error {
 	// Deleting user session.
-	query = "DELETE FROM user_session WHERE id=$1"
-	if _, err := tx.Exec(ctx, query, id); err != nil {
-		return err
-	}
-
-	return tx.Commit(ctx)
+	_, err := r.psql.Exec(ctx, "DELETE FROM user_session WHERE id=$1", id)
+	return err
 }
 
 // Getting total user session count.
-func (r *UserRepository) GetTotalCount(ctx context.Context, userId ksuid.KSUID) (int32, error) {
+func (r *SessionRepository) GetTotalCount(ctx context.Context, userId ksuid.KSUID) (int32, error) {
 	var count int32
 
 	// Get total user session count.
