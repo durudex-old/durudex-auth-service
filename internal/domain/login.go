@@ -17,13 +17,13 @@
 
 package domain
 
-// Credential specifies the user's credential type number.
-type Credential int
+// Login type specifies the user's login credential type number.
+type Login int
 
 const (
-	// CredentialUsername specifies the username type of the user's credentials.
-	CredentialUsername Credential = iota + 1
+	// LoginUsername specifies the username type of the user's login credentials.
+	LoginUsername Login = iota + 1
 
-	// CredentialEmail specifies the email address type of the user's credentials.
-	CredentialEmail
+	// LoginEmail specifies the email address type of the user's login credentials.
+	LoginEmail
 )

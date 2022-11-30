@@ -18,6 +18,7 @@
 package http
 
 import (
+	"github.com/durudex/durudex-auth-service/internal/service"
 	v1 "github.com/durudex/durudex-auth-service/internal/transport/http/v1"
 
 	"github.com/gofiber/fiber/v2"
@@ -30,12 +31,12 @@ type Handler interface {
 }
 
 // handler structure implements methods for interacting with the API.
-type handler struct{}
+type handler struct{ service *service.Service }
 
 // NewHandler function returns a new API handler.
-func NewHandler() Handler { return &handler{} }
+func NewHandler(service *service.Service) Handler { return &handler{service: service} }
 
 // RegisterAllRoutes method registers all API routes.
 func (h *handler) RegisterAllRoutes(router fiber.Router) {
-	v1.NewHandler().RegisterAllRoutes(router)
+	v1.NewHandler(h.service).RegisterAllRoutes(router)
 }

@@ -17,8 +17,19 @@
 
 package service
 
-// Service structure stores methods for interacting with the auth services.
-type Service struct{ Account Account }
+import "github.com/durudex/durudex-auth-service/internal/domain"
 
-// NewService function returns a new service.
-func NewService() *Service { return &Service{} }
+// Account interface stores methods for interacting with the account service.
+type Account interface {
+	// Check method checks the user's login credentials.
+	Check(domain.Login, string) error
+}
+
+// account structure implements methods for interacting with the account service.
+type account struct{}
+
+// NewAccount function returns a new account service.
+func NewAccount() Account { return &account{} }
+
+// Check method checks the user's login credentials.
+func (a *account) Check(lt domain.Login, login string) error { return nil }
