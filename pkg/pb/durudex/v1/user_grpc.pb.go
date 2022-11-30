@@ -18,16 +18,14 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UserServiceClient interface {
-	// Creating a new user.
+	// CreateUser creates a new user on the Durudex network.
 	CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*CreateUserResponse, error)
-	// Getting a user by id.
-	GetUserById(ctx context.Context, in *GetUserByIdRequest, opts ...grpc.CallOption) (*GetUserByIdResponse, error)
-	// Getting a user by credentials.
-	GetUserByCreds(ctx context.Context, in *GetUserByCredsRequest, opts ...grpc.CallOption) (*GetUserByCredsResponse, error)
-	// Forgoting a user password.
+	// GetPublicUser returns the user's public data.
+	GetPublicUser(ctx context.Context, in *GetPublicUserRequest, opts ...grpc.CallOption) (*GetPublicUserResponse, error)
+	// GetPrivateUser returns the user's private data.
+	GetPrivateUser(ctx context.Context, in *GetPrivateUserRequest, opts ...grpc.CallOption) (*GetPrivateUserResponse, error)
+	// ForgotUserPassword changes the user's password to a new one.
 	ForgotUserPassword(ctx context.Context, in *ForgotUserPasswordRequest, opts ...grpc.CallOption) (*ForgotUserPasswordResponse, error)
-	// Updating a user avatar.
-	UpdateUserAvatar(ctx context.Context, in *UpdateUserAvatarRequest, opts ...grpc.CallOption) (*UpdateUserAvatarResponse, error)
 }
 
 type userServiceClient struct {
@@ -47,18 +45,18 @@ func (c *userServiceClient) CreateUser(ctx context.Context, in *CreateUserReques
 	return out, nil
 }
 
-func (c *userServiceClient) GetUserById(ctx context.Context, in *GetUserByIdRequest, opts ...grpc.CallOption) (*GetUserByIdResponse, error) {
-	out := new(GetUserByIdResponse)
-	err := c.cc.Invoke(ctx, "/durudex.v1.UserService/GetUserById", in, out, opts...)
+func (c *userServiceClient) GetPublicUser(ctx context.Context, in *GetPublicUserRequest, opts ...grpc.CallOption) (*GetPublicUserResponse, error) {
+	out := new(GetPublicUserResponse)
+	err := c.cc.Invoke(ctx, "/durudex.v1.UserService/GetPublicUser", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *userServiceClient) GetUserByCreds(ctx context.Context, in *GetUserByCredsRequest, opts ...grpc.CallOption) (*GetUserByCredsResponse, error) {
-	out := new(GetUserByCredsResponse)
-	err := c.cc.Invoke(ctx, "/durudex.v1.UserService/GetUserByCreds", in, out, opts...)
+func (c *userServiceClient) GetPrivateUser(ctx context.Context, in *GetPrivateUserRequest, opts ...grpc.CallOption) (*GetPrivateUserResponse, error) {
+	out := new(GetPrivateUserResponse)
+	err := c.cc.Invoke(ctx, "/durudex.v1.UserService/GetPrivateUser", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -74,29 +72,18 @@ func (c *userServiceClient) ForgotUserPassword(ctx context.Context, in *ForgotUs
 	return out, nil
 }
 
-func (c *userServiceClient) UpdateUserAvatar(ctx context.Context, in *UpdateUserAvatarRequest, opts ...grpc.CallOption) (*UpdateUserAvatarResponse, error) {
-	out := new(UpdateUserAvatarResponse)
-	err := c.cc.Invoke(ctx, "/durudex.v1.UserService/UpdateUserAvatar", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // UserServiceServer is the server API for UserService service.
 // All implementations must embed UnimplementedUserServiceServer
 // for forward compatibility
 type UserServiceServer interface {
-	// Creating a new user.
+	// CreateUser creates a new user on the Durudex network.
 	CreateUser(context.Context, *CreateUserRequest) (*CreateUserResponse, error)
-	// Getting a user by id.
-	GetUserById(context.Context, *GetUserByIdRequest) (*GetUserByIdResponse, error)
-	// Getting a user by credentials.
-	GetUserByCreds(context.Context, *GetUserByCredsRequest) (*GetUserByCredsResponse, error)
-	// Forgoting a user password.
+	// GetPublicUser returns the user's public data.
+	GetPublicUser(context.Context, *GetPublicUserRequest) (*GetPublicUserResponse, error)
+	// GetPrivateUser returns the user's private data.
+	GetPrivateUser(context.Context, *GetPrivateUserRequest) (*GetPrivateUserResponse, error)
+	// ForgotUserPassword changes the user's password to a new one.
 	ForgotUserPassword(context.Context, *ForgotUserPasswordRequest) (*ForgotUserPasswordResponse, error)
-	// Updating a user avatar.
-	UpdateUserAvatar(context.Context, *UpdateUserAvatarRequest) (*UpdateUserAvatarResponse, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
 
@@ -107,17 +94,14 @@ type UnimplementedUserServiceServer struct {
 func (UnimplementedUserServiceServer) CreateUser(context.Context, *CreateUserRequest) (*CreateUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateUser not implemented")
 }
-func (UnimplementedUserServiceServer) GetUserById(context.Context, *GetUserByIdRequest) (*GetUserByIdResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetUserById not implemented")
+func (UnimplementedUserServiceServer) GetPublicUser(context.Context, *GetPublicUserRequest) (*GetPublicUserResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPublicUser not implemented")
 }
-func (UnimplementedUserServiceServer) GetUserByCreds(context.Context, *GetUserByCredsRequest) (*GetUserByCredsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetUserByCreds not implemented")
+func (UnimplementedUserServiceServer) GetPrivateUser(context.Context, *GetPrivateUserRequest) (*GetPrivateUserResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPrivateUser not implemented")
 }
 func (UnimplementedUserServiceServer) ForgotUserPassword(context.Context, *ForgotUserPasswordRequest) (*ForgotUserPasswordResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ForgotUserPassword not implemented")
-}
-func (UnimplementedUserServiceServer) UpdateUserAvatar(context.Context, *UpdateUserAvatarRequest) (*UpdateUserAvatarResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateUserAvatar not implemented")
 }
 func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
 
@@ -150,38 +134,38 @@ func _UserService_CreateUser_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
-func _UserService_GetUserById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetUserByIdRequest)
+func _UserService_GetPublicUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetPublicUserRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServiceServer).GetUserById(ctx, in)
+		return srv.(UserServiceServer).GetPublicUser(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/durudex.v1.UserService/GetUserById",
+		FullMethod: "/durudex.v1.UserService/GetPublicUser",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).GetUserById(ctx, req.(*GetUserByIdRequest))
+		return srv.(UserServiceServer).GetPublicUser(ctx, req.(*GetPublicUserRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _UserService_GetUserByCreds_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetUserByCredsRequest)
+func _UserService_GetPrivateUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetPrivateUserRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServiceServer).GetUserByCreds(ctx, in)
+		return srv.(UserServiceServer).GetPrivateUser(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/durudex.v1.UserService/GetUserByCreds",
+		FullMethod: "/durudex.v1.UserService/GetPrivateUser",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).GetUserByCreds(ctx, req.(*GetUserByCredsRequest))
+		return srv.(UserServiceServer).GetPrivateUser(ctx, req.(*GetPrivateUserRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -204,24 +188,6 @@ func _UserService_ForgotUserPassword_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
-func _UserService_UpdateUserAvatar_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateUserAvatarRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserServiceServer).UpdateUserAvatar(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/durudex.v1.UserService/UpdateUserAvatar",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).UpdateUserAvatar(ctx, req.(*UpdateUserAvatarRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // UserService_ServiceDesc is the grpc.ServiceDesc for UserService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -234,20 +200,16 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _UserService_CreateUser_Handler,
 		},
 		{
-			MethodName: "GetUserById",
-			Handler:    _UserService_GetUserById_Handler,
+			MethodName: "GetPublicUser",
+			Handler:    _UserService_GetPublicUser_Handler,
 		},
 		{
-			MethodName: "GetUserByCreds",
-			Handler:    _UserService_GetUserByCreds_Handler,
+			MethodName: "GetPrivateUser",
+			Handler:    _UserService_GetPrivateUser_Handler,
 		},
 		{
 			MethodName: "ForgotUserPassword",
 			Handler:    _UserService_ForgotUserPassword_Handler,
-		},
-		{
-			MethodName: "UpdateUserAvatar",
-			Handler:    _UserService_UpdateUserAvatar_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
